@@ -131,6 +131,7 @@ class EndpointAPI:
             endpoints_url = config.endpoints_url
             headers = config.get_headers()
 
+        # API expects endpoints as list of phone number strings
         payload = {"endpoints": phone_list}
 
         if verbose:
@@ -154,12 +155,16 @@ class EndpointAPI:
             return response.json()
 
         except requests.exceptions.HTTPError as e:
-            error_msg = f"HTTP Error: {e}"
+            error_msg = f"{e}"
             if hasattr(e, "response") and e.response is not None:
-                error_msg += f"\nResponse: {e.response.text}"
+                try:
+                    error_details = e.response.json()
+                    error_msg += f"\nAPI Error Details: {error_details}"
+                except:
+                    error_msg += f"\nResponse Text: {e.response.text}"
             if verbose:
                 print(error_msg, file=sys.stderr)
-            raise
+            raise ValueError(error_msg) from e
         except requests.exceptions.RequestException as e:
             if verbose:
                 print(f"Request failed: {e}", file=sys.stderr)
