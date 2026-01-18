@@ -75,12 +75,23 @@ def render_single_endpoint_tab() -> None:
                         st.json(result)
                 except Exception as e:
                     error_msg = str(e)
+
+                    # Check if it's the "already exists" case
                     if "already exist" in error_msg.lower():
                         st.warning(
-                            f"⚠️ **{single_number}** already exists " "as an endpoint!"
+                            f"⚠️ **{single_number}** already exists as an endpoint!"
                         )
+                        st.info(
+                            "💡 **Possible reasons:**\n"
+                            "- This number is already registered as an endpoint in this provider\n"
+                            "- The number might be registered in a different provider for this organization\n"
+                            "- Try checking with a different phone number"
+                        )
+                        with st.expander("🔍 View Full API Response"):
+                            st.code(error_msg, language="text")
                     else:
-                        st.error(f"❌ Failed to create endpoint: {error_msg}")
+                        st.error(f"❌ Failed to create endpoint")
+                        st.code(error_msg, language="text")
         else:
             st.warning("Please enter a phone number.")
 
