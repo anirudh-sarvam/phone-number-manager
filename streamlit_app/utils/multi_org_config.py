@@ -5,13 +5,40 @@ from typing import Dict, List
 from pathlib import Path
 import dotenv
 
-# Load environment variables
+# Import Streamlit only if available (for secrets support in cloud)
+try:
+    import streamlit as st
+
+    HAS_STREAMLIT = True
+except ImportError:
+    HAS_STREAMLIT = False
+
+# Load environment variables (for local development)
 env_path = Path(__file__).parent.parent.parent / ".env"
 dotenv.load_dotenv(dotenv_path=env_path, override=True)
 
 
 def clean_env_value(key: str) -> str:
-    """Get environment variable and clean it of quotes and whitespace."""
+    """Get environment variable and clean it of quotes and whitespace.
+
+    Supports both .env files (local) and Streamlit secrets (cloud).
+    """
+    # Try Streamlit secrets first (for cloud deployment)
+    if HAS_STREAMLIT:
+        try:
+            if hasattr(st, "secrets") and key in st.secrets:
+                value = st.secrets[key]
+                if isinstance(value, str):
+                    value = value.strip()
+                    if (value.startswith('"') and value.endswith('"')) or (
+                        value.startswith("'") and value.endswith("'")
+                    ):
+                        value = value[1:-1]
+                    return value
+        except Exception:
+            pass
+
+    # Fall back to environment variables (for local development)
     value = os.getenv(key) or ""
     value = value.strip()
     if (value.startswith('"') and value.endswith('"')) or (
