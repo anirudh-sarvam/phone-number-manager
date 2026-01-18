@@ -96,13 +96,18 @@ class EndpointAPI:
 
     @staticmethod
     def create_endpoint(
-        phone_numbers: Union[str, List[str]], verbose: bool = False
+        phone_numbers: Union[str, List[str]],
+        base_url: str = None,
+        token: str = None,
+        verbose: bool = False,
     ) -> Dict:
         """
         Create endpoints with the specified phone number(s).
 
         Args:
             phone_numbers: Single phone number or list of phone numbers
+            base_url: Optional API base URL (from session state)
+            token: Optional API token (from session state)
             verbose: Whether to print progress messages
 
         Returns:
@@ -118,17 +123,24 @@ class EndpointAPI:
         else:
             phone_list = phone_numbers
 
-        headers = config.get_headers()
+        # Use provided base_url and token, or fall back to config
+        if base_url and token:
+            endpoints_url = f"{base_url}/endpoints"
+            headers = {"Authorization": f"Bearer {token}"}
+        else:
+            endpoints_url = config.endpoints_url
+            headers = config.get_headers()
+
         payload = {"endpoints": phone_list}
 
         if verbose:
             print(f"Creating endpoint(s) for: {', '.join(phone_list)}")
-            print(f"POST URL: {config.endpoints_url}")
+            print(f"POST URL: {endpoints_url}")
             print(f"Payload: {payload}\n")
 
         try:
             response = requests.post(
-                config.endpoints_url,
+                endpoints_url,
                 json=payload,
                 headers=headers,
                 timeout=config.API_TIMEOUT,
@@ -154,29 +166,47 @@ class EndpointAPI:
             raise
 
     @staticmethod
-    def create_single_endpoint(phone_number: str, verbose: bool = False) -> Dict:
+    def create_single_endpoint(
+        phone_number: str,
+        base_url: str = None,
+        token: str = None,
+        verbose: bool = False,
+    ) -> Dict:
         """
         Create a single endpoint (convenience wrapper).
 
         Args:
             phone_number: The phone number to register
+            base_url: Optional API base URL (from session state)
+            token: Optional API token (from session state)
             verbose: Whether to print progress messages
 
         Returns:
             Response data from the API
         """
-        return EndpointAPI.create_endpoint(phone_number, verbose=verbose)
+        return EndpointAPI.create_endpoint(
+            phone_number, base_url=base_url, token=token, verbose=verbose
+        )
 
     @staticmethod
-    def create_bulk_endpoints(phone_numbers: List[str], verbose: bool = False) -> Dict:
+    def create_bulk_endpoints(
+        phone_numbers: List[str],
+        base_url: str = None,
+        token: str = None,
+        verbose: bool = False,
+    ) -> Dict:
         """
         Create multiple endpoints in a single request.
 
         Args:
             phone_numbers: List of phone numbers to register
+            base_url: Optional API base URL (from session state)
+            token: Optional API token (from session state)
             verbose: Whether to print progress messages
 
         Returns:
             Response data from the API
         """
-        return EndpointAPI.create_endpoint(phone_numbers, verbose=verbose)
+        return EndpointAPI.create_endpoint(
+            phone_numbers, base_url=base_url, token=token, verbose=verbose
+        )

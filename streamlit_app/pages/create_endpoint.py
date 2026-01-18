@@ -11,6 +11,11 @@ def render_single_endpoint_tab() -> None:
     """Render the single endpoint creation tab."""
     st.subheader("Create Single Endpoint")
 
+    # Check if organization and provider are selected
+    if not st.session_state.get("current_api_url") or not st.session_state.get("current_token"):
+        st.warning("⚠️ Please select an **Organization** and **Provider** from the sidebar first.")
+        return
+
     single_number = st.text_input(
         "Phone Number:",
         placeholder="+915551234567",
@@ -56,7 +61,10 @@ def render_single_endpoint_tab() -> None:
             with st.spinner("Creating endpoint..."):
                 try:
                     result = EndpointAPI.create_single_endpoint(
-                        single_number, verbose=False
+                        single_number,
+                        base_url=st.session_state.get("current_api_url"),
+                        token=st.session_state.get("current_token"),
+                        verbose=False
                     )
                     success_box(
                         "Endpoint Created Successfully!",
@@ -80,6 +88,12 @@ def render_single_endpoint_tab() -> None:
 def render_bulk_endpoint_tab() -> None:
     """Render the bulk endpoint creation tab."""
     st.subheader("Create Multiple Endpoints")
+
+    # Check if organization and provider are selected
+    if not st.session_state.get("current_api_url") or not st.session_state.get("current_token"):
+        st.warning("⚠️ Please select an **Organization** and **Provider** from the sidebar first.")
+        return
+
     st.write(
         "Enter multiple phone numbers (one per line) to register them " "all at once."
     )
@@ -164,7 +178,10 @@ def render_bulk_endpoint_tab() -> None:
             with st.spinner(f"Creating {len(numbers_to_create)} endpoint(s)..."):
                 try:
                     result = EndpointAPI.create_bulk_endpoints(
-                        numbers_to_create, verbose=False
+                        numbers_to_create,
+                        base_url=st.session_state.get("current_api_url"),
+                        token=st.session_state.get("current_token"),
+                        verbose=False
                     )
                     success_box(
                         "Endpoints Created Successfully!",
