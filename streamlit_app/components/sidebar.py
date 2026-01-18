@@ -53,12 +53,15 @@ def render_sidebar() -> None:
         if providers:
             provider_names = ["-- Select a Provider --"] + [p["name"] for p in providers]
 
+            # Get current index (add 1 to account for placeholder)
+            current_idx = (st.session_state.selected_provider_idx + 1) if st.session_state.selected_provider_idx is not None else 0
+
             # Use org name in key to force reset when org changes
             selected_provider_display_idx = st.selectbox(
                 "Provider:",
                 range(len(provider_names)),
                 format_func=lambda x: provider_names[x],
-                index=0,  # Always start at "-- Select a Provider --"
+                index=current_idx,  # Use actual index, not always 0
                 key=f"provider_selectbox_{selected_org}",  # Dynamic key based on org
             )
 
