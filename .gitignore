@@ -49,3 +49,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Scripts
+scripts/generate_admin_password.py

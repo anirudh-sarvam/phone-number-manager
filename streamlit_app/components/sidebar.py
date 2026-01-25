@@ -51,10 +51,16 @@ def render_sidebar() -> None:
         # Provider dropdown
         providers = get_providers_for_org(selected_org)
         if providers:
-            provider_names = ["-- Select a Provider --"] + [p["name"] for p in providers]
+            provider_names = ["-- Select a Provider --"] + [
+                p["name"] for p in providers
+            ]
 
             # Get current index (add 1 to account for placeholder)
-            current_idx = (st.session_state.selected_provider_idx + 1) if st.session_state.selected_provider_idx is not None else 0
+            current_idx = (
+                (st.session_state.selected_provider_idx + 1)
+                if st.session_state.selected_provider_idx is not None
+                else 0
+            )
 
             # Use org name in key to force reset when org changes
             selected_provider_display_idx = st.selectbox(
@@ -66,7 +72,11 @@ def render_sidebar() -> None:
             )
 
             # Convert display index to actual provider index (subtract 1 for placeholder)
-            selected_provider_idx = selected_provider_display_idx - 1 if selected_provider_display_idx > 0 else None
+            selected_provider_idx = (
+                selected_provider_display_idx - 1
+                if selected_provider_display_idx > 0
+                else None
+            )
 
             # Update selected provider if changed
             if selected_provider_idx != st.session_state.selected_provider_idx:
@@ -105,19 +115,33 @@ def render_sidebar() -> None:
         if "last_refresh" not in st.session_state:
             st.session_state.last_refresh = None
 
-        # Load data on first run
+        # Check if provider is selected (needed for multiple checks below)
+        provider_selected = st.session_state.get("selected_provider_idx") is not None
+
+        # Load data on first run (disabled - wait for user to select provider)
         if not st.session_state.numbers_loaded:
-            st.info("📡 Click 'Refresh from API' to fetch real phone numbers.\n\n"
-                   "Note: Data will only be stored in memory (session) for security.")
+            if not provider_selected:
+                st.info(
+                    "📡 Select an organization and provider above, then click 'Refresh from API' to fetch phone numbers.\n\n"
+                    "Note: Data will only be stored in memory (session) for security."
+                )
+            else:
+                st.info(
+                    "📡 Click 'Refresh from API' to fetch phone numbers.\n\n"
+                    "Note: Data will only be stored in memory (session) for security."
+                )
 
         # Refresh button (only enabled if provider is selected)
-        provider_selected = st.session_state.get("selected_provider_idx") is not None
 
         if st.button(
             "🔄 Refresh from API",
-            use_container_width=True,
+            width="stretch",
             disabled=not provider_selected,
-            help="Select a provider first" if not provider_selected else "Fetch phone numbers from API"
+            help=(
+                "Select a provider first"
+                if not provider_selected
+                else "Fetch phone numbers from API"
+            ),
         ):
             with st.spinner("Fetching phone numbers from API..."):
                 try:
@@ -130,8 +154,7 @@ def render_sidebar() -> None:
                         return
 
                     numbers = PhoneNumberAPI.fetch_all_available_numbers(
-                        api_url=api_url,
-                        token=token
+                        api_url=api_url, token=token
                     )
 
                     if not numbers or len(numbers) == 0:
@@ -152,7 +175,9 @@ def render_sidebar() -> None:
                         if Path(config.CSV_FILE).exists():
                             Path(config.CSV_FILE).unlink()
 
-                        st.success(f"✅ Loaded {len(numbers)} numbers from **{st.session_state.selected_org}**!")
+                        st.success(
+                            f"✅ Loaded {len(numbers)} numbers from **{st.session_state.selected_org}**!"
+                        )
                         st.info("🔒 No CSV file - data stored only in session memory.")
                         st.balloons()
                         st.rerun()

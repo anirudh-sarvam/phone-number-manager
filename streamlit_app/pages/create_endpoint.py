@@ -31,7 +31,7 @@ def render_single_endpoint_tab() -> None:
         "before attempting to create endpoint",
     )
 
-    if st.button("🚀 Create Endpoint", type="primary", use_container_width=True):
+    if st.button("🚀 Create Endpoint", type="primary", width="stretch"):
         if single_number:
             # Check availability first if enabled
             if check_before_create:
@@ -134,7 +134,7 @@ def render_bulk_endpoint_tab() -> None:
         key="check_before_bulk",
     )
 
-    if st.button("🚀 Create All Endpoints", type="primary", use_container_width=True):
+    if st.button("🚀 Create All Endpoints", type="primary", width="stretch"):
         if bulk_numbers:
             numbers_list = [n.strip() for n in bulk_numbers.split("\n") if n.strip()]
 

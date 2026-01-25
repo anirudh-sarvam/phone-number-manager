@@ -39,7 +39,7 @@ def render_browse_numbers_page() -> None:
         df.index = df.index + 1  # Start index from 1
 
         # Display with pagination
-        st.dataframe(df.head(items_per_page), use_container_width=True, height=400)
+        st.dataframe(df.head(items_per_page), width=0, height=400)
 
         # Download button
         csv_data = df.to_csv(index=False)
@@ -50,7 +50,7 @@ def render_browse_numbers_page() -> None:
                 f"phone_numbers_" f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
             ),
             mime="text/csv",
-            use_container_width=True,
+            width="stretch",
         )
     else:
         st.info("No data loaded. Please refresh from API using the sidebar.")
