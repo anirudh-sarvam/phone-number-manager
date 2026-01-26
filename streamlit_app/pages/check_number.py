@@ -96,7 +96,7 @@ def render_check_number_page() -> None:
                         )
 
                     df = pd.DataFrame(results)
-                    st.dataframe(df, width=0, hide_index=True)
+                    st.dataframe(df, hide_index=True)
 
                     # Summary
                     available_count = sum(1 for r in results if "✅" in r["Status"])

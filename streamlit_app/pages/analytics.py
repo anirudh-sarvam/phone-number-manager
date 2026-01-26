@@ -77,6 +77,6 @@ def render_analytics_page() -> None:
             )
 
         df_breakdown = pd.DataFrame(breakdown)
-        st.dataframe(df_breakdown, width=0, hide_index=True)
+        st.dataframe(df_breakdown, hide_index=True)
     else:
         st.info("No data loaded. Please refresh from API using the sidebar.")
