@@ -39,7 +39,7 @@ def render_browse_numbers_page() -> None:
         df.index = df.index + 1  # Start index from 1
 
         # Display with pagination
-        st.dataframe(df.head(items_per_page), width=0, height=400)
+        st.dataframe(df.head(items_per_page), height=400)
 
         # Download button
         csv_data = df.to_csv(index=False)
