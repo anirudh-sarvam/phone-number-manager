@@ -95,6 +95,17 @@ ORGS_CONFIG = {
             },
         ],
     },
+    "NHA": {
+        "domain": "nha.in",
+        "workspace": "nha-in-default-4f3763",
+        "token_key": "NHA",
+        "providers": [
+            {
+                "name": "exotel",
+                "connection": "NHA-Axonswi-8c54c28f-4316",
+            },
+        ],
+    },
 }
 
 
