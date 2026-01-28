@@ -106,6 +106,17 @@ ORGS_CONFIG = {
             },
         ],
     },
+    "Cred":{
+        "domain": "cred.club",
+        "workspace": "cred-club-default-fffa16",
+        "token_key": "CRED_TOKEN",
+        "providers": [
+            {
+                "name": "exotel",
+                "connection": "sarvam-axon-78098de1-4c51",
+            },
+        ],
+    },
 }
 
 
