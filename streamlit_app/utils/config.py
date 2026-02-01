@@ -1,11 +1,11 @@
-"""Configuration module for the Phone Number Manager application."""
+"""Configuration module for the Phone Number Manager application.
 
-import os
+Uses secrets.toml for configuration (not .env).
+"""
+
 from dataclasses import dataclass
-from pathlib import Path
-import dotenv
 
-# Import Streamlit only if available (for secrets support in cloud)
+# Import Streamlit only if available (for secrets support)
 try:
     import streamlit as st
 
@@ -13,46 +13,50 @@ try:
 except ImportError:
     HAS_STREAMLIT = False
 
-# Force load .env from project root (for local development)
-env_path = Path(__file__).parent.parent.parent / ".env"
-dotenv.load_dotenv(dotenv_path=env_path, override=True)
 
+def _get_secret_value(key: str, default: str = "") -> str:
+    """Get value from Streamlit secrets.
 
-# Get values and aggressively strip quotes and whitespace
-def clean_env_value(key: str) -> str:
-    """Get environment variable and clean it of quotes and whitespace.
+    Args:
+        key: Secret key (supports nested keys like "api.base_url")
+        default: Default value if key not found
 
-    Supports both .env files (local) and Streamlit secrets (cloud).
+    Returns:
+        Secret value as string
     """
-    # Try Streamlit secrets first (for cloud deployment)
-    if HAS_STREAMLIT:
-        try:
-            if hasattr(st, "secrets") and key in st.secrets:
-                value = st.secrets[key]
-                if isinstance(value, str):
-                    value = value.strip()
-                    if (value.startswith('"') and value.endswith('"')) or (
-                        value.startswith("'") and value.endswith("'")
-                    ):
-                        value = value[1:-1]
-                    return value
-        except Exception:
-            pass
+    if not HAS_STREAMLIT:
+        return default
 
-    # Fall back to environment variables (for local development)
-    value = os.getenv(key) or ""
-    # Strip whitespace
-    value = value.strip()
-    # Remove surrounding quotes (both single and double)
-    if (value.startswith('"') and value.endswith('"')) or (
-        value.startswith("'") and value.endswith("'")
-    ):
-        value = value[1:-1]
-    return value
+    try:
+        if hasattr(st, "secrets"):
+            # Handle nested keys like "api.base_url"
+            keys = key.split(".")
+            value = st.secrets
+            for k in keys:
+                if isinstance(value, dict):
+                    value = value.get(k)
+                else:
+                    return default
+                if value is None:
+                    return default
+
+            if isinstance(value, str):
+                value = value.strip()
+                # Remove surrounding quotes
+                if (value.startswith('"') and value.endswith('"')) or (
+                    value.startswith("'") and value.endswith("'")
+                ):
+                    value = value[1:-1]
+            return str(value) if value is not None else default
+    except Exception:
+        pass
+
+    return default
 
 
-BASE_URL = clean_env_value("BASE_URL")
-SARVAM_TOKEN = clean_env_value("SARVAM_TOKEN")
+# Get configuration from secrets.toml
+BASE_URL = _get_secret_value("api.base_url", "")
+SARVAM_TOKEN = _get_secret_value("api.token", "")
 
 
 @dataclass

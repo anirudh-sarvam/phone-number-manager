@@ -12,8 +12,12 @@ def render_single_endpoint_tab() -> None:
     st.subheader("Create Single Endpoint")
 
     # Check if organization and provider are selected
-    if not st.session_state.get("current_api_url") or not st.session_state.get("current_token"):
-        st.warning("⚠️ Please select an **Organization** and **Provider** from the sidebar first.")
+    if not st.session_state.get("current_api_url") or not st.session_state.get(
+        "current_token"
+    ):
+        st.warning(
+            "⚠️ Please select an **Organization** and **Provider** from the sidebar first."
+        )
         return
 
     single_number = st.text_input(
@@ -37,13 +41,14 @@ def render_single_endpoint_tab() -> None:
             if check_before_create:
                 # Check if we have numbers loaded
                 if not st.session_state.get("numbers_loaded", False):
-                    st.warning("⚠️ No data loaded. Please click 'Refresh from API' in the sidebar first.")
+                    st.warning(
+                        "⚠️ No data loaded. Please click 'Refresh from API' in the sidebar first."
+                    )
                     return
 
                 with st.spinner("Checking availability..."):
                     is_available = is_number_available(
-                        single_number,
-                        numbers_set=st.session_state.phone_numbers
+                        single_number, numbers_set=st.session_state.phone_numbers
                     )
 
                 if not is_available:
@@ -64,7 +69,7 @@ def render_single_endpoint_tab() -> None:
                         single_number,
                         base_url=st.session_state.get("current_api_url"),
                         token=st.session_state.get("current_token"),
-                        verbose=False
+                        verbose=False,
                     )
                     success_box(
                         "Endpoint Created Successfully!",
@@ -87,8 +92,6 @@ def render_single_endpoint_tab() -> None:
                             "- The number might be registered in a different provider for this organization\n"
                             "- Try checking with a different phone number"
                         )
-                        with st.expander("🔍 View Full API Response"):
-                            st.code(error_msg, language="text")
                     else:
                         st.error(f"❌ Failed to create endpoint")
                         st.code(error_msg, language="text")
@@ -101,8 +104,12 @@ def render_bulk_endpoint_tab() -> None:
     st.subheader("Create Multiple Endpoints")
 
     # Check if organization and provider are selected
-    if not st.session_state.get("current_api_url") or not st.session_state.get("current_token"):
-        st.warning("⚠️ Please select an **Organization** and **Provider** from the sidebar first.")
+    if not st.session_state.get("current_api_url") or not st.session_state.get(
+        "current_token"
+    ):
+        st.warning(
+            "⚠️ Please select an **Organization** and **Provider** from the sidebar first."
+        )
         return
 
     st.write(
@@ -146,7 +153,9 @@ def render_bulk_endpoint_tab() -> None:
             if check_before_bulk:
                 # Check if we have numbers loaded
                 if not st.session_state.get("numbers_loaded", False):
-                    st.warning("⚠️ No data loaded. Please click 'Refresh from API' in the sidebar first.")
+                    st.warning(
+                        "⚠️ No data loaded. Please click 'Refresh from API' in the sidebar first."
+                    )
                     return
 
                 with st.spinner(f"Checking {len(numbers_list)} numbers..."):
@@ -154,7 +163,9 @@ def render_bulk_endpoint_tab() -> None:
                     unavailable_numbers = []
 
                     for num in numbers_list:
-                        if is_number_available(num, numbers_set=st.session_state.phone_numbers):
+                        if is_number_available(
+                            num, numbers_set=st.session_state.phone_numbers
+                        ):
                             available_numbers.append(num)
                         else:
                             unavailable_numbers.append(num)
@@ -192,7 +203,7 @@ def render_bulk_endpoint_tab() -> None:
                         numbers_to_create,
                         base_url=st.session_state.get("current_api_url"),
                         token=st.session_state.get("current_token"),
-                        verbose=False
+                        verbose=False,
                     )
                     success_box(
                         "Endpoints Created Successfully!",

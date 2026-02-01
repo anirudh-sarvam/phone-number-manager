@@ -1,34 +1,31 @@
 """
 Authentication module for admin access.
+Uses credentials from secrets.toml (not .env).
 """
 
-import streamlit as st
 import hashlib
-import os
-from pathlib import Path
-import dotenv
+from typing import Optional, Tuple
 
-# Load environment variables
-env_path = Path(__file__).parent / ".env"
-dotenv.load_dotenv(dotenv_path=env_path, override=True)
-
-# Admin credentials - Load from environment variables
-ENV_USERNAME = os.getenv("ADMIN_USERNAME")
-ENV_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH")
-
-# Check if credentials are configured
-if not ENV_USERNAME or not ENV_PASSWORD_HASH:
-    import warnings
-
-    warnings.warn(
-        "Admin credentials not configured. "
-        "Set ADMIN_USERNAME and ADMIN_PASSWORD_HASH in .env file."
-    )
+import streamlit as st
 
 
 def hash_password(password: str) -> str:
     """Hash a password using SHA-256."""
     return hashlib.sha256(password.encode()).hexdigest()
+
+
+def _get_admin_credentials() -> Tuple[Optional[str], Optional[str]]:
+    """Get admin credentials from secrets.toml.
+
+    Returns:
+        Tuple of (username, password_hash) or (None, None) if not configured
+    """
+    try:
+        username = st.secrets.get("admin", {}).get("username")
+        password_hash = st.secrets.get("admin", {}).get("password_hash")
+        return username, password_hash
+    except Exception:
+        return None, None
 
 
 def check_password(username: str, password: str) -> bool:
@@ -42,19 +39,25 @@ def check_password(username: str, password: str) -> bool:
     Returns:
         True if credentials are valid, False otherwise
     """
+    admin_username, admin_password_hash = _get_admin_credentials()
+
     # Check if credentials are configured
-    if not ENV_USERNAME or not ENV_PASSWORD_HASH:
+    if not admin_username or not admin_password_hash:
         return False
 
-    if username != ENV_USERNAME:
+    if username != admin_username:
         return False
 
     password_hash = hash_password(password)
-    return password_hash == ENV_PASSWORD_HASH
+    return password_hash == admin_password_hash
 
 
 def login_page():
     """Render the login page."""
+    # Check if already authenticated (shouldn't happen, but safety check)
+    if st.session_state.get("authenticated", False):
+        return
+
     st.markdown(
         """
         <style>
@@ -91,12 +94,14 @@ def login_page():
     )
 
     # Check if credentials are configured
-    if not ENV_USERNAME or not ENV_PASSWORD_HASH:
-        st.error(
+    admin_username, admin_password_hash = _get_admin_credentials()
+    if not admin_username or not admin_password_hash:
+        error_msg = (
             "⚠️ Admin credentials not configured. "
-            "Please set ADMIN_USERNAME and ADMIN_PASSWORD_HASH "
-            "in .env file."
+            "Please set admin.username and admin.password_hash "
+            "in .streamlit/secrets.toml file."
         )
+        st.error(error_msg)
         st.markdown("</div>", unsafe_allow_html=True)
         return
 
@@ -111,7 +116,7 @@ def login_page():
             if check_password(username, password):
                 st.session_state.authenticated = True
                 st.session_state.username = username
-                st.success("✅ Login successful!")
+                st.markdown("</div>", unsafe_allow_html=True)
                 st.rerun()
             else:
                 st.error("❌ Invalid username or password")

@@ -28,7 +28,7 @@ def apply_custom_css() -> None:
             color: #1f77b4;
             text-align: center;
             margin-bottom: 1rem;
-            margin-top: 0.5rem;
+            margin-top: 0.25rem;
         }
         .metric-container {
             background-color: #f0f2f6;
@@ -51,6 +51,12 @@ def apply_custom_css() -> None:
             padding: 1rem;
             border-radius: 0.5rem;
             margin: 1rem 0;
+        }
+        section[data-testid="stSidebar"] > div {
+            padding-top: -1.5rem;
+        }
+        section[data-testid="stSidebar"] .element-container {
+            padding-top: -1.5rem;
         }
         </style>
     """,
