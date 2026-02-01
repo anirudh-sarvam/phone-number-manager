@@ -252,7 +252,15 @@ class EndpointAPI:
 
         # Use provided base_url and token, or fall back to config
         if base_url and token:
-            endpoints_url = f"{base_url}/endpoints"
+            # Convert phone-numbers URL to endpoints URL
+            # Phone-numbers URL: .../channels/v2v/providers/{provider}/connections/{connection_id}/phone-numbers
+            # Endpoints URL: .../channels/v2v/providers/{provider}/connections/{connection_id}/endpoints
+            if "/phone-numbers" in base_url:
+                # Simply replace /phone-numbers with /endpoints
+                endpoints_url = base_url.replace("/phone-numbers", "/endpoints")
+            else:
+                # If base_url doesn't contain /phone-numbers, append /endpoints
+                endpoints_url = f"{base_url}/endpoints"
             headers = {"Authorization": f"Bearer {token}"}
         else:
             endpoints_url = config.endpoints_url
