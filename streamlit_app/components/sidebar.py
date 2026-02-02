@@ -17,6 +17,14 @@ from ..utils.multi_org_config import (
 
 def render_sidebar() -> None:
     """Render the application sidebar with controls and statistics."""
+    # Initialize session state early to prevent AttributeError in pages
+    if "numbers_loaded" not in st.session_state:
+        st.session_state.numbers_loaded = False
+    if "phone_numbers" not in st.session_state:
+        st.session_state.phone_numbers = set()
+    if "last_refresh" not in st.session_state:
+        st.session_state.last_refresh = None
+
     with st.sidebar:
         st.header("⚙️ Settings")
 
@@ -216,14 +224,6 @@ def render_sidebar() -> None:
             )
 
         st.divider()
-
-        # Initialize session state
-        if "numbers_loaded" not in st.session_state:
-            st.session_state.numbers_loaded = False
-        if "phone_numbers" not in st.session_state:
-            st.session_state.phone_numbers = set()
-        if "last_refresh" not in st.session_state:
-            st.session_state.last_refresh = None
 
         # Check if provider is selected
         provider_selected = st.session_state.get("selected_provider_idx") is not None

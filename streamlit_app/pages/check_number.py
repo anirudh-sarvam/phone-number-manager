@@ -40,7 +40,7 @@ def render_check_number_page() -> None:
                     # Pass session state numbers to the check function
                     is_available = is_number_available(
                         phone_input,
-                        numbers_set=st.session_state.phone_numbers,
+                        numbers_set=st.session_state.get("phone_numbers", set()),
                         refresh=check_api,
                     )
 
@@ -82,10 +82,9 @@ def render_check_number_page() -> None:
 
                 with st.spinner(f"Checking {len(numbers_to_check)} numbers..."):
                     results = []
+                    phone_numbers = st.session_state.get("phone_numbers", set())
                     for num in numbers_to_check:
-                        is_avail = is_number_available(
-                            num, numbers_set=st.session_state.phone_numbers
-                        )
+                        is_avail = is_number_available(num, numbers_set=phone_numbers)
                         results.append(
                             {
                                 "Phone Number": num,

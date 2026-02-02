@@ -8,9 +8,13 @@ def render_analytics_page() -> None:
     """Render the Analytics Dashboard page."""
     st.header("Analytics Dashboard")
 
-    if st.session_state.numbers_loaded and st.session_state.phone_numbers:
+    # Safely access session state with defaults
+    numbers_loaded = st.session_state.get("numbers_loaded", False)
+    phone_numbers = st.session_state.get("phone_numbers", set())
 
-        numbers_list = list(st.session_state.phone_numbers)
+    if numbers_loaded and phone_numbers:
+
+        numbers_list = list(phone_numbers)
 
         # Basic stats
         col1, col2, col3 = st.columns(3)

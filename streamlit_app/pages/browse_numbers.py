@@ -9,7 +9,11 @@ def render_browse_numbers_page() -> None:
     """Render the Browse Available Numbers page."""
     st.header("Browse Available Numbers")
 
-    if st.session_state.numbers_loaded and st.session_state.phone_numbers:
+    # Safely access session state with defaults
+    numbers_loaded = st.session_state.get("numbers_loaded", False)
+    phone_numbers = st.session_state.get("phone_numbers", set())
+
+    if numbers_loaded and phone_numbers:
 
         # Search and filter
         col1, col2 = st.columns([2, 1])
@@ -27,7 +31,7 @@ def render_browse_numbers_page() -> None:
             )
 
         # Filter numbers
-        filtered_numbers = sorted(st.session_state.phone_numbers)
+        filtered_numbers = sorted(phone_numbers)
         if search_term:
             filtered_numbers = [n for n in filtered_numbers if search_term in n]
 

@@ -48,7 +48,8 @@ def render_single_endpoint_tab() -> None:
 
                 with st.spinner("Checking availability..."):
                     is_available = is_number_available(
-                        single_number, numbers_set=st.session_state.phone_numbers
+                        single_number,
+                        numbers_set=st.session_state.get("phone_numbers", set()),
                     )
 
                 if not is_available:
@@ -161,11 +162,10 @@ def render_bulk_endpoint_tab() -> None:
                 with st.spinner(f"Checking {len(numbers_list)} numbers..."):
                     available_numbers = []
                     unavailable_numbers = []
+                    phone_numbers = st.session_state.get("phone_numbers", set())
 
                     for num in numbers_list:
-                        if is_number_available(
-                            num, numbers_set=st.session_state.phone_numbers
-                        ):
+                        if is_number_available(num, numbers_set=phone_numbers):
                             available_numbers.append(num)
                         else:
                             unavailable_numbers.append(num)
